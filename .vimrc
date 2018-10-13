@@ -1,5 +1,4 @@
-" vim-sublime - A minimal Sublime Text - like vim experience bundle
-"               http://github.com/grigio/vim-sublime
+"
 " Best view with a 256 color terminal and Powerline fonts
 " Updated by Dorian Neto (https://github.com/dorianneto)"
 
@@ -15,31 +14,61 @@ call vundle#begin()
 Plugin 'VundleVim/Vundle.vim'
 
 " ------Plugins-------
+"  Utility
 Plugin 'scrooloose/nerdtree'
+Plugin 'majutsushi/tagbar'
+Plugin 'jlanzarotta/bufexplorer'
 Plugin 'tpope/vim-surround'
 Plugin 'gcmt/breeze.vim'
 Plugin 'kien/ctrlp.vim'
 Plugin 'mileszs/ack.vim'
 Plugin 'SirVer/ultisnips'
-Plugin 'tomtom/tcomment_vim'
-Plugin 'vim-airline/vim-airline'
-Plugin 'vim-airline/vim-airline-themes'
-Plugin 'airblade/vim-gitgutter'
-Plugin 'Valloric/YouCompleteMe'
-Plugin 'davidhalter/jedi-vim'
+" Snippets are separated from the engine. Add this if you want them:
+Plugin 'honza/vim-snippets'
+Plugin 'szw/vim-maximizer'
+Plugin 'rizzatti/dash.vim'
+Plugin 'craigemery/vim-autotag'
+
+"  Ruby Support
 Plugin 'tpope/vim-dispatch'
 Plugin 'tpope/vim-rails'
-Plugin 'scrooloose/syntastic'
 Plugin 'ngmy/vim-rubocop'
 Plugin 'thoughtbot/vim-rspec'
-Plugin 'szw/vim-maximizer'
 Plugin 'tpope/vim-endwise'
+" Plugin 'activebridge/rails-snippets'
+
+"  General Programming Support
+Plugin 'Valloric/YouCompleteMe'
+Plugin 'scrooloose/syntastic'
+Plugin 'tomtom/tcomment_vim'
+Plugin 'davidhalter/jedi-vim'
+Plugin 'Raimondi/delimitMate'
+" Plugin 'Townk/vim-autoclose'
+
+"  Markdown / Writing
+"  Git support
+Plugin 'gregsexton/gitv'
+Plugin 'kablamo/vim-git-log'
+Plugin 'airblade/vim-gitgutter'
 Plugin 'tpope/vim-fugitive'
 
-" Color Themes
+
+"  Php Support
+Plugin 'phpvim/phpcd.vim'
+Plugin 'tobyS/pdv'
+
+"  Theme / Interface
+Plugin 'ryanoasis/vim-devicons'
+Plugin 'vim-airline/vim-airline'
+Plugin 'vim-airline/vim-airline-themes'
 Plugin 'colors'
+Plugin 'morhetz/gruvbox'
+
+"  Coffeescript Support
+Plugin 'kchmck/vim-coffee-script'
 
 call vundle#end()
+set background=dark
 colorscheme gruvbox
 filetype plugin indent on
 
@@ -119,10 +148,13 @@ set completeopt=menuone,longest,preview
 "
 " Plugins config
 "
+" tagbar config
+nmap <F8> :TagbarToggle<CR>
 
 " NERDTree
-nnoremap <S-n> :NERDTreeToggle<CR>
-
+let mapleader = ','
+nmap <Leader>n :NERDTreeFind<CR>
+nmap <Leader>m :NERDTreeToggle<CR>
 " CtrlP
 set wildignore+=*/.git/*,*/.hg/*,*/.svn/*
 
@@ -134,11 +166,18 @@ let g:UltiSnipsJumpBackwardTrigger="<c-k>"
 let g:did_UltiSnips_vim_after = 1
 
 " vim-airline
+let g:Powerline_symbols = 'unicode'
 let g:airline#extensions#tabline#enabled = 1
 let g:airline_powerline_fonts = 1
-
+let g:airline_theme='luna'
+python from powerline.vim import setup as powerline_setup
+python powerline_setup()
+python del powerline_setup
 " enable silver search
 let g:ackprg = 'ag --nogroup --nocolor --column'
+" autotags
+let g:autotagTagsFile="./.tags"
+set tags=./.tags,.tags;
 " Basic shortcuts definitions
 "  most in visual mode / selection (v or ⇧ v)
 "
@@ -163,30 +202,29 @@ nnoremap <C-z>  :undo<CR>
 inoremap <C-z>  <Esc>:undo<CR>
 nnoremap <C-y>  :redo<CR>
 inoremap <C-y>  <Esc>:redo<CR>
-" Tabs
-let g:airline_theme='molokai'
-let g:airline#extensions#tabline#enabled = 1
 nnoremap <C-b>  :tabprevious<CR>
 inoremap <C-b>  <Esc>:tabprevious<CR>i
 nnoremap <C-n>  :tabnext<CR>
 inoremap <C-n>  <Esc>:tabnext<CR>i
-nnoremap tt  :tabnew<CR>
-inoremap tt  <Esc>:tabnew<CR>
+nnoremap tn :tabnew<CR>
 nnoremap <C-k>  :tabclose<CR>
 inoremap <C-k>  <Esc>:tabclose<CR>i
-
-" lazy ':'
-map \ :
 
 let mapleader = ','
 nnoremap <Leader>p :set paste<CR>
 nnoremap <Leader>o :set nopaste<CR>
 noremap  <Leader>g :GitGutterToggle<CR>
-map <F8> :vertical wincmd f<CR>
+nmap <silent> <leader>d <Plug>DashSearch
+nnoremap <Leader>b :buffers<CR>:buffer<Space>
 " this machine config
 if filereadable(expand("~/.vimrc.local"))
   source ~/.vimrc.local
 endif
+" CtrlP config
+let g:ctrlp_map = '<c-p>'
+let g:ctrlp_cmd = 'CtrlPMixed'
+let g:ctrlp_clear_cache_on_exit = 0
+" let g:ctrlp_lazy_update = 1
 " The Silver Searcher
 if executable('ag')
   " Use ag over grep
@@ -209,15 +247,52 @@ set statusline+=%{SyntasticStatuslineFlag()}
 set statusline+=%*
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
-let g:syntastic_ruby_checkers = ['rubocop']
-
+let g:syntastic_ruby_checkers = ['mri']
+" RuboCop config
+let g:vimrubocop_keymap = 0
+nmap <Leader>r :RuboCop<CR>
 " RSpec config
 map <Leader>t :call RunCurrentSpecFile()<CR>
 map <Leader>s :call RunNearestSpec()<CR>
 map <Leader>l :call RunLastSpec()<CR>
 map <Leader>a :call RunAllSpecs()<CR>
-let g:rspec_command = "Dispatch rspec {spec}"
+" let g:rspec_command = "Dispatch rspec {spec}"
 
 " Plugin 'szw/vim-maximizer' config
 map <F2> :Copen
 map ` :ccl
+
+" Large files fix
+" file is large from 10mb
+let g:LargeFile = 1024 * 1024 * 10
+augroup LargeFile 
+ autocmd BufReadPre * let f=getfsize(expand("<afile>")) | if f > g:LargeFile || f == -2 | call LargeFile() | endif
+augroup END
+
+function LargeFile()
+ " no syntax highlighting etc
+ set eventignore+=FileType
+ " save memory when other file is viewed
+ setlocal bufhidden=unload
+ " is read-only (write with :w new_filename)
+ setlocal buftype=nowrite
+ " no undo possible
+ setlocal undolevels=-1
+ " display message
+ autocmd VimEnter *  echo "The file is larger than " . (g:LargeFile / 1024 / 1024) . " MB, so some options are changed (see .vimrc for details)."
+endfunction
+
+" CtrlP auto cache clearing.
+" ----------------------------------------------------------------------------
+function! SetupCtrlP()
+  if exists("g:loaded_ctrlp") && g:loaded_ctrlp
+    augroup CtrlPExtension
+      autocmd!
+      autocmd FocusGained  * CtrlPClearCache
+      autocmd BufWritePost * CtrlPClearCache
+    augroup END
+  endif
+endfunction
+if has("autocmd")
+  autocmd VimEnter * :call SetupCtrlP()
+endif
